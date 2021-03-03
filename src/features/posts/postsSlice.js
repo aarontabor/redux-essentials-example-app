@@ -9,12 +9,14 @@ const initialState = [
     title: 'First Post!',
     content: 'Hello World :)',
     date: sub(new Date(), { minutes: 10 }).toISOString(),
+    reactions: { upvote: 0, downvote: 0 },
   },
   {
     id: '2',
     title: 'Second Post',
     content: 'Boo - missed out on first :(',
     date: sub(new Date(), {minutes: 5 }).toISOString(),
+    reactions: { upvote: 0, downvote: 0 },
   },
 ]
 
@@ -35,6 +37,7 @@ const postsSlice = createSlice({
             title,
             content,
             user: userId,
+            reactions: { upvote: 0, downvote: 0 },
           }
         }
       },
@@ -46,10 +49,17 @@ const postsSlice = createSlice({
         existingPost.title = title
         existingPost.content = content
       }
-    }
+    },
+    reactionAdded(state, action) {
+      const { postId, reaction } = action.payload
+      const post = state.find(post => post.id === postId)
+      if (post) {
+        post.reactions[reaction]++
+      }
+    },
   },
 })
 
-export const { postAdded, postUpdated } = postsSlice.actions
+export const { postAdded, postUpdated, reactionAdded } = postsSlice.actions
 
 export default postsSlice.reducer

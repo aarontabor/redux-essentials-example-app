@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { PostAuthor } from './PostAuthor'
 import { TimeAgo } from './TimeAgo'
+import { ReactionButtons } from './ReactionButtons'
 
 
 export const SinglePostPage = ({ match }) => {
@@ -26,6 +27,7 @@ export const SinglePostPage = ({ match }) => {
       <article className="post">
         <h2>{post.title}</h2>
         <div>
+          <ReactionButtons post={post} />
           <PostAuthor userId={post.user} />
           <TimeAgo timestamp={post.date} />
         </div>
