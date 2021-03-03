@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { unwrapResult } from '@reduxjs/toolkit'
 
-import { postAdded } from './postsSlice'
+import { addNewPost } from './postsSlice'
 
 
 export const AddPostForm = () => {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [userId, setUserId] = useState('')
+  const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
   const dispatch = useDispatch()
 
@@ -17,13 +19,33 @@ export const AddPostForm = () => {
   const onContentChanged = e => setContent(e.target.value)
   const onAuthorChanged = e => setUserId(e.target.value)
 
-  const onSavePostClicked = () => {
-    dispatch(postAdded(title, content, userId))
-    setTitle('')
-    setContent('')
+  const onSavePostClicked = async () => {
+    if (!canSave) {
+      return
+    }
+
+    try {
+      setAddRequestStatus('pending')
+      const resultAction = await dispatch(
+        addNewPost({ title, content, user: userId })
+      )
+
+      // This line is important because it either:
+      //  - returns the action.payload if successful (not used in this instance)
+      //  - throws an error if the dispatched action failed, allowing our try catch block to work correctly
+      unwrapResult(resultAction)
+
+      setTitle('')
+      setContent('')
+      setUserId('')
+    } catch (err) {
+      console.error('Failed to save the post: ', err)
+    } finally {
+      setAddRequestStatus('idle')
+    }
   }
 
-  const canSave = Boolean(title) && Boolean(content) && Boolean(userId)
+  const canSave = Boolean(title) && Boolean(content) && Boolean(userId) && addRequestStatus === 'idle'
 
 
   const userOptions = users.map(user => (
